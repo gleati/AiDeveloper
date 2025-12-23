@@ -15,8 +15,8 @@ public class AITester {
     public static void main(String[] args) {
         StopwatchCPU timer = new StopwatchCPU();
         testAllVersions();
-        zeroCarnival();
-        oneMatch();
+//        zeroCarnival();
+//        oneMatch();
         double elapsedTime = timer.elapsedTime();
         System.out.printf("总耗时: %.4f秒\n", elapsedTime);
     }
@@ -26,15 +26,15 @@ public class AITester {
         Configuration.GUI = false;
 
         ArrayList<Player> players = new ArrayList<>();
-        players.add(new stud.g77.AI());      // V0-走法2：相邻策略
-        players.add(new stud.g88.AI());      // V0-走法1：完全随机策略
-        players.add(new stud.g99.AI());      // V0-走法3：中心优先策略
+//        players.add(new stud.g77.AI());      // V0-走法2：相邻策略
+//        players.add(new stud.g88.AI());      // V0-走法1：完全随机策略
+//        players.add(new stud.g99.AI());      // V0-走法3：中心优先策略
         players.add(new stud.v1.SmartAI());  // V1-基础智能
         players.add(new stud.v2.AlphaBetaAI()); // V2-博弈树
-        players.add(new stud.v3.TBSAI());    // V3-威胁搜索
+//        players.add(new stud.v3.TBSAI());    // V3-威胁搜索
 
         GameEvent event = new GameEvent("AI Evolution Test", players);
-        event.carnivalRun(100);
+        event.carnivalRun(10);
         event.showResults();
     }
 
@@ -94,8 +94,8 @@ public class AITester {
     private static void oneMatch(){
         Configuration.GUI = true;
         Configuration.STEP_INTER = 300;
-        Player one = new stud.v3.TBSAI();
-        Player two = new stud.g99.AI();
+        Player one = new stud.v2.AlphaBetaAI();
+        Player two = new stud.v1.SmartAI();
         Match match = new Match(2, one, two);
         for (Game game : match.getGames()){
             game.run();
