@@ -100,7 +100,7 @@ public class SmartAI extends AI {
      */
     protected List<Integer> findThreats(PieceColor color) {
         List<Integer> threats = new ArrayList<>();
-        
+
         for (int i = 0; i < 361; i++) {
             if (board.get(i) != PieceColor.EMPTY) continue;
             
@@ -190,6 +190,13 @@ public class SmartAI extends AI {
         return "V1-SmartAI";
     }
     
+    /**
+     * 开始新游戏时的初始化
+     *
+     * <p>重置棋盘和颜色标志</p>
+     *
+     * @param game 游戏对象
+     */
     @Override
     public void playGame(Game game) {
         super.playGame(game);

@@ -11,7 +11,7 @@ import java.util.List;
  * V2阶段：博弈树搜索AI
  */
 public class AlphaBetaAI extends SmartAI {
-    
+
     @Override
     public Move findNextMove(Move opponentMove) {
         this.board.makeMove(opponentMove);
@@ -46,7 +46,7 @@ public class AlphaBetaAI extends SmartAI {
         this.board.makeMove(bestMove);
         return bestMove;
     }
-    
+
     private Move findBestMove() {
         List<Move> candidates = generateMoves();
         if (candidates.isEmpty()) {
@@ -55,7 +55,7 @@ public class AlphaBetaAI extends SmartAI {
         
         Move bestMove = candidates.get(0);
         int bestScore = evaluateMove(bestMove);
-        
+
         for (int i = 1; i < candidates.size(); i++) {
             Move move = candidates.get(i);
             int score = evaluateMove(move);
@@ -66,11 +66,11 @@ public class AlphaBetaAI extends SmartAI {
         }
         return bestMove;
     }
-    
+
     private int evaluateMove(Move move) {
         return evaluatePosition(move.index1()) + evaluatePosition(move.index2());
     }
-    
+
     private int evaluatePosition(int pos) {
         int row = pos / 19;
         int col = pos % 19;
