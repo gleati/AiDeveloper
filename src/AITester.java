@@ -26,7 +26,9 @@ public class AITester {
         Configuration.GUI = false;
 
         ArrayList<Player> players = new ArrayList<>();
-        players.add(new stud.g99.AI());      // V0-随机
+        players.add(new stud.g77.AI());      // V0-走法2：相邻策略
+        players.add(new stud.g88.AI());      // V0-走法1：完全随机策略
+        players.add(new stud.g99.AI());      // V0-走法3：中心优先策略
         players.add(new stud.v1.SmartAI());  // V1-基础智能
         players.add(new stud.v2.AlphaBetaAI()); // V2-博弈树
         players.add(new stud.v3.TBSAI());    // V3-威胁搜索
