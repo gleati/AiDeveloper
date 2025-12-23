@@ -6,12 +6,30 @@ import stud.v1.SmartAI;
 import java.util.*;
 
 public class AlphaBetaAI extends SmartAI {
-    private static final int MAX_DEPTH = 2;
-    private static final int INF = 1000000;
+    private static final int MAX_DEPTH = 4;
+    private static final int INF = 10000000;
+    private static final int CANDIDATE_LIMIT = 10;
+
+    // 评分权重
+    private static final int[] SCORES = {0, 10, 100, 1000, 50000, 1000000};
+
+    // 置换表缓存
+    private Map<Long, Integer> transpositionTable = new HashMap<>();
+    private long zobristHash = 0;
+    private long[][] zobristTable = new long[361][2];
+
+    public AlphaBetaAI() {
+        Random rand = new Random(12345);
+        for (int i = 0; i < 361; i++) {
+            zobristTable[i][0] = rand.nextLong();
+            zobristTable[i][1] = rand.nextLong();
+        }
+    }
 
     @Override
     public Move findNextMove(Move opponentMove) {
         this.board.makeMove(opponentMove);
+        updateZobrist(opponentMove);
 
         if (myColor == null) {
             myColor = (opponentMove == null || opponentMove.index1() == -1)
@@ -20,34 +38,48 @@ public class AlphaBetaAI extends SmartAI {
 
         PieceColor opponent = getOpponent(myColor);
 
-        // 优先检查对手的致命威胁
         Move blockCritical = findCriticalBlock(opponent);
         if (blockCritical != null) {
             this.board.makeMove(blockCritical);
+            updateZobrist(blockCritical);
             return blockCritical;
         }
 
         Move winMove = findWinningMove(myColor);
         if (winMove != null) {
             this.board.makeMove(winMove);
+            updateZobrist(winMove);
             return winMove;
         }
 
         Move blockMove = findWinningMove(opponent);
         if (blockMove != null) {
             this.board.makeMove(blockMove);
+            updateZobrist(blockMove);
             return blockMove;
         }
 
         Move bestMove = alphaBetaSearch();
         this.board.makeMove(bestMove);
+        updateZobrist(bestMove);
         return bestMove;
+    }
+
+    private void updateZobrist(Move move) {
+        if (move == null || move.index1() == -1) return;
+        PieceColor color = board.get(move.index1());
+        int colorIdx = (color == PieceColor.BLACK) ? 0 : 1;
+        zobristHash ^= zobristTable[move.index1()][colorIdx];
+        if (move.index2() != -1) {
+            color = board.get(move.index2());
+            colorIdx = (color == PieceColor.BLACK) ? 0 : 1;
+            zobristHash ^= zobristTable[move.index2()][colorIdx];
+        }
     }
 
     private Move findCriticalBlock(PieceColor color) {
         List<Integer> critical = new ArrayList<>();
 
-        // 检查所有已有5连或4连
         for (int i = 0; i < 361; i++) {
             if (board.get(i) != color) continue;
             int row = i / 19, col = i % 19;
@@ -134,8 +166,10 @@ public class AlphaBetaAI extends SmartAI {
 
         for (Move move : candidates) {
             board.makeMove(move);
+            updateZobrist(move);
             int score = -negamax(MAX_DEPTH - 1, -INF, -alpha, getOpponent(myColor));
             board.undo(move);
+            updateZobrist(move);
 
             if (score > alpha) {
                 alpha = score;
@@ -146,20 +180,41 @@ public class AlphaBetaAI extends SmartAI {
     }
 
     private int negamax(int depth, int alpha, int beta, PieceColor color) {
-        if (depth == 0) return evaluate(color);
+        if (transpositionTable.containsKey(zobristHash)) {
+            return transpositionTable.get(zobristHash);
+        }
+
+        if (depth == 0) {
+            int eval = evaluate(color);
+            transpositionTable.put(zobristHash, eval);
+            return eval;
+        }
 
         List<Move> moves = generateCandidateMoves();
-        if (moves.isEmpty()) return evaluate(color);
+        if (moves.isEmpty()) {
+            int eval = evaluate(color);
+            transpositionTable.put(zobristHash, eval);
+            return eval;
+        }
 
+        int maxScore = -INF;
         for (Move move : moves) {
             board.makeMove(move);
+            updateZobrist(move);
             int score = -negamax(depth - 1, -beta, -alpha, getOpponent(color));
             board.undo(move);
+            updateZobrist(move);
 
-            if (score >= beta) return beta;
-            if (score > alpha) alpha = score;
+            maxScore = Math.max(maxScore, score);
+            if (score >= beta) {
+                transpositionTable.put(zobristHash, beta);
+                return beta;
+            }
+            alpha = Math.max(alpha, score);
         }
-        return alpha;
+
+        transpositionTable.put(zobristHash, maxScore);
+        return maxScore;
     }
 
     private int evaluate(PieceColor color) {
@@ -168,55 +223,67 @@ public class AlphaBetaAI extends SmartAI {
 
     private int evaluatePosition(PieceColor color) {
         int score = 0;
+        Set<Integer> evaluated = new HashSet<>();
 
         for (int i = 0; i < 361; i++) {
-            if (board.get(i) != color) continue;
+            if (board.get(i) != color || evaluated.contains(i)) continue;
+
             int row = i / 19, col = i % 19;
             for (int[] dir : DIRECTIONS) {
                 int count = countConsecutive(row, col, dir[0], dir[1], color);
-                if (count >= 6) score += 1000000;
-                else if (count == 5) score += 100000;
-                else if (count == 4) score += 10000;
-                else if (count == 3) score += 1000;
-                else if (count == 2) score += 100;
+                if (count > 1) {
+                    score += SCORES[Math.min(count, 5)];
+                    markEvaluated(row, col, dir[0], dir[1], color, evaluated);
+                }
             }
         }
         return score;
     }
 
+    private void markEvaluated(int row, int col, int dr, int dc, PieceColor color, Set<Integer> evaluated) {
+        for (int i = -5; i <= 5; i++) {
+            int r = row + dr * i, c = col + dc * i;
+            if (r >= 0 && r < 19 && c >= 0 && c < 19 && board.get(r * 19 + c) == color) {
+                evaluated.add(r * 19 + c);
+            }
+        }
+    }
+
     private List<Move> generateCandidateMoves() {
         Map<Integer, Integer> scores = new HashMap<>();
-        boolean hasStone = false;
+        Set<Integer> occupied = new HashSet<>();
 
         for (int i = 0; i < 361; i++) {
-            if (board.get(i) == PieceColor.EMPTY) continue;
-            hasStone = true;
-            int row = i / 19, col = i % 19;
+            if (board.get(i) != PieceColor.EMPTY) {
+                occupied.add(i);
+            }
+        }
 
+        if (occupied.isEmpty()) {
+            return List.of(new Move(180, 181));
+        }
+
+        for (int pos : occupied) {
+            int row = pos / 19, col = pos % 19;
             for (int dr = -2; dr <= 2; dr++) {
                 for (int dc = -2; dc <= 2; dc++) {
                     int r = row + dr, c = col + dc;
                     if (r >= 0 && r < 19 && c >= 0 && c < 19) {
-                        int pos = r * 19 + c;
-                        if (board.get(pos) == PieceColor.EMPTY) {
-                            int score = evaluateMove(pos);
-                            scores.put(pos, scores.getOrDefault(pos, 0) + score);
+                        int candidate = r * 19 + c;
+                        if (board.get(candidate) == PieceColor.EMPTY) {
+                            int score = evaluateMoveQuality(candidate);
+                            scores.put(candidate, scores.getOrDefault(candidate, 0) + score);
                         }
                     }
                 }
             }
         }
 
-        if (!hasStone) {
-            scores.put(180, 1000);
-            scores.put(181, 900);
-        }
-
         List<Integer> sorted = new ArrayList<>(scores.keySet());
         sorted.sort((a, b) -> scores.get(b) - scores.get(a));
 
         List<Move> moves = new ArrayList<>();
-        int limit = Math.min(sorted.size(), 8);
+        int limit = Math.min(sorted.size(), CANDIDATE_LIMIT);
         for (int i = 0; i < limit; i++) {
             for (int j = i + 1; j < limit; j++) {
                 moves.add(new Move(sorted.get(i), sorted.get(j)));
@@ -226,12 +293,30 @@ public class AlphaBetaAI extends SmartAI {
         return moves;
     }
 
+    private int evaluateMoveQuality(int pos) {
+        int score = 0;
+        int row = pos / 19, col = pos % 19;
+
+        for (int[] dir : DIRECTIONS) {
+            int myCount = countConsecutive(row, col, dir[0], dir[1], myColor);
+            int oppCount = countConsecutive(row, col, dir[0], dir[1], getOpponent(myColor));
+
+            if (myCount >= 4) score += 100000;
+            else if (oppCount >= 4) score += 50000;
+            else if (myCount == 3) score += 5000;
+            else if (oppCount == 3) score += 3000;
+            else score += myCount * 100 + oppCount * 50;
+        }
+
+        return score;
+    }
+
     private PieceColor getOpponent(PieceColor color) {
         return (color == PieceColor.BLACK) ? PieceColor.WHITE : PieceColor.BLACK;
     }
 
     @Override
     public String name() {
-        return "V2-AlphaBeta";
+        return "V2-AlphaBeta-Optimized";
     }
 }
