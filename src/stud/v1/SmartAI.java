@@ -16,8 +16,6 @@ public class SmartAI extends AI {
 
     @Override
     public Move findNextMove(Move opponentMove) {
-        // 修复：仅当对手移动有效时才更新棋盘
-
         this.board.makeMove(opponentMove);
 
         Move winMove = findWinningMove(myColor);
@@ -37,7 +35,6 @@ public class SmartAI extends AI {
         return smartMove;
     }
 
-    // 辅助方法：判断移动是否有效
     protected boolean isValidMove(Move move) {
         return move != null && move.index1() != -1;
     }
@@ -80,7 +77,6 @@ public class SmartAI extends AI {
     protected int countLineFromEmpty(int row, int col, int dr, int dc, PieceColor color) {
         int count = 0;
 
-        // 正方向计数
         for (int i = 1; i <= 5; i++) {
             int r = row + dr * i, c = col + dc * i;
             if (r < 0 || r >= 19 || c < 0 || c >= 19) break;
@@ -88,7 +84,6 @@ public class SmartAI extends AI {
             else break;
         }
 
-        // 反方向计数
         for (int i = 1; i <= 5; i++) {
             int r = row - dr * i, c = col - dc * i;
             if (r < 0 || r >= 19 || c < 0 || c >= 19) break;
@@ -158,19 +153,12 @@ public class SmartAI extends AI {
     public String name() {
         return "V1-SmartAI";
     }
-    
-    /**
-     * 开始新游戏时的初始化
-     *
-     * <p>重置棋盘和颜色标志</p>
-     *
-     * @param game 游戏对象
-     */
+
     @Override
     public void playGame(Game game) {
         super.playGame(game);
         board = new Board();
         colorInitialized = false;
-        myColor = null; // 修复：重置颜色，防止连续对局时状态错误
+        myColor = null;
     }
 }

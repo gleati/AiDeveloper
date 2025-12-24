@@ -14,9 +14,9 @@ import java.util.ArrayList;
 public class AITester {
     public static void main(String[] args) {
         StopwatchCPU timer = new StopwatchCPU();
-        //testAllVersions();
+        testAllVersions();
 //        zeroCarnival();
-        oneMatch();
+//        oneMatch();
         double elapsedTime = timer.elapsedTime();
         System.out.printf("总耗时: %.4f秒\n", elapsedTime);
     }
