@@ -15,9 +15,9 @@ import java.util.ArrayList;
 public class AITester {
     public static void main(String[] args) {
         StopwatchCPU timer = new StopwatchCPU();
-        testAllVersions();
+        //testAllVersions();
 //        zeroCarnival();
-//        oneMatch();
+        oneMatch();
         double elapsedTime = timer.elapsedTime();
         System.out.printf("总耗时: %.4f秒\n", elapsedTime);
     }
@@ -30,9 +30,9 @@ public class AITester {
 //        players.add(new stud.g77.AI());      // V0-走法2：相邻策略
 //        players.add(new stud.g88.AI());      // V0-走法1：完全随机策略
 //        players.add(new stud.g99.AI());      // V0-走法3：中心优先策略
-        players.add(new stud.v1.AI());
+        //players.add(new stud.v1.AI());
         players.add(new stud.v2.AI()); // V2-博弈树
-//        players.add(new stud.v3.TBSAI());    // V3-威胁搜索
+        players.add(new stud.v3.AI());    // V3-威胁搜索
 
         GameEvent event = new GameEvent("AI Evolution Test", players);
         event.carnivalRun(100);
@@ -96,7 +96,7 @@ public class AITester {
         Configuration.GUI = true;
         Configuration.STEP_INTER = 300;
         Player one = new stud.v2.AI();
-        Player two = new stud.v1.AI();
+        Player two = new stud.v3.AI();
         Match match = new Match(10, one, two);
         for (Game game : match.getGames()){
             game.run();
