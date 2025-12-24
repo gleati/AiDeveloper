@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="g06">
+    <output-path>$USER_HOME$/Desktop/人工智能jar包</output-path>
+    <root id="archive" name="g06.jar">
+      <element id="directory" name="stud">
+        <element id="directory" name="g06">
+          <element id="dir-copy" path="$PROJECT_DIR$/out/production/AiDeveloper/stud/g06" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

@@ -4,12 +4,11 @@ import core.board.Board;
 import core.board.PieceColor;
 import core.game.Game;
 import core.game.Move;
-import core.player.AI;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SmartAI extends AI {
+public class AI extends core.player.AI {
     protected static final int[][] DIRECTIONS = {{1,0}, {0,1}, {1,1}, {1,-1}};
     protected PieceColor myColor;
     private boolean colorInitialized = false;

@@ -5,6 +5,7 @@ import core.game.ui.Configuration;
 import core.match.GameEvent;
 import core.match.Match;
 import core.player.Player;
+import stud.v1.AI;
 
 import java.util.ArrayList;
 
@@ -29,8 +30,8 @@ public class AITester {
 //        players.add(new stud.g77.AI());      // V0-走法2：相邻策略
 //        players.add(new stud.g88.AI());      // V0-走法1：完全随机策略
 //        players.add(new stud.g99.AI());      // V0-走法3：中心优先策略
-        players.add(new stud.v1.SmartAI());
-        players.add(new stud.v2.AlphaBetaAI()); // V2-博弈树
+        players.add(new stud.v1.AI());
+        players.add(new stud.v2.AI()); // V2-博弈树
 //        players.add(new stud.v3.TBSAI());    // V3-威胁搜索
 
         GameEvent event = new GameEvent("AI Evolution Test", players);
@@ -94,9 +95,9 @@ public class AITester {
     private static void oneMatch(){
         Configuration.GUI = true;
         Configuration.STEP_INTER = 300;
-        Player one = new stud.v2.AlphaBetaAI();
-        Player two = new stud.v1.SmartAI();
-        Match match = new Match(4, one, two);
+        Player one = new stud.v2.AI();
+        Player two = new stud.v1.AI();
+        Match match = new Match(10, one, two);
         for (Game game : match.getGames()){
             game.run();
         }

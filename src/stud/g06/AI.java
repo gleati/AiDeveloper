@@ -1,13 +1,13 @@
-package stud.v2;
+package stud.g06;
 
 import core.board.Board;
 import core.board.PieceColor;
 import core.game.Game;
 import core.game.Move;
-import core.player.AI;
+
 import java.util.*;
 
-public class AlphaBetaAI extends AI {
+public class AI extends core.player.AI {
     protected static final int[][] DIRECTIONS = {{1,0}, {0,1}, {1,1}, {1,-1}};
     protected PieceColor myColor;
 
@@ -20,7 +20,7 @@ public class AlphaBetaAI extends AI {
     private long zobristHash = 0;
     private long[][] zobristTable = new long[361][2];
 
-    public AlphaBetaAI() {
+    public AI() {
         Random rand = new Random(12345);
         for (int i = 0; i < 361; i++) {
             zobristTable[i][0] = rand.nextLong();
