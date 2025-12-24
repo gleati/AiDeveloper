@@ -29,12 +29,12 @@ public class AITester {
 //        players.add(new stud.g77.AI());      // V0-走法2：相邻策略
 //        players.add(new stud.g88.AI());      // V0-走法1：完全随机策略
 //        players.add(new stud.g99.AI());      // V0-走法3：中心优先策略
-        players.add(new stud.v1.SmartAI());  // V1-基础智能
+        players.add(new stud.v1.SmartAI());
         players.add(new stud.v2.AlphaBetaAI()); // V2-博弈树
 //        players.add(new stud.v3.TBSAI());    // V3-威胁搜索
 
         GameEvent event = new GameEvent("AI Evolution Test", players);
-        event.carnivalRun(10);
+        event.carnivalRun(100);
         event.showResults();
     }
 
@@ -96,7 +96,7 @@ public class AITester {
         Configuration.STEP_INTER = 300;
         Player one = new stud.v2.AlphaBetaAI();
         Player two = new stud.v1.SmartAI();
-        Match match = new Match(2, one, two);
+        Match match = new Match(4, one, two);
         for (Game game : match.getGames()){
             game.run();
         }

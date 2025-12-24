@@ -16,11 +16,9 @@ public class SmartAI extends AI {
 
     @Override
     public Move findNextMove(Move opponentMove) {
-        this.board.makeMove(opponentMove);
+        // 修复：仅当对手移动有效时才更新棋盘
 
-        if (!colorInitialized) {
-            initColor(opponentMove);
-        }
+        this.board.makeMove(opponentMove);
 
         Move winMove = findWinningMove(myColor);
         if (winMove != null) {
@@ -37,6 +35,11 @@ public class SmartAI extends AI {
         Move smartMove = findSmartMove();
         this.board.makeMove(smartMove);
         return smartMove;
+    }
+
+    // 辅助方法：判断移动是否有效
+    protected boolean isValidMove(Move move) {
+        return move != null && move.index1() != -1;
     }
 
     private void initColor(Move opponentMove) {
@@ -161,5 +164,6 @@ public class SmartAI extends AI {
         super.playGame(game);
         board = new Board();
         colorInitialized = false;
+        myColor = null; // 修复：重置颜色，防止连续对局时状态错误
     }
 }
