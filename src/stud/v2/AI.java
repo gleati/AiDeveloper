@@ -48,16 +48,6 @@ public class AI extends core.player.AI {
         System.out.println(myColor);
         PieceColor opponent = getOpponent(myColor);
 
-        Move blockCritical = findCriticalBlock(opponent);
-        if (blockCritical != null) {
-            System.out.println("blockCritical");
-            System.out.println(this.board.whoseMove());
-            printMove(blockCritical);
-            this.board.makeMove(blockCritical);
-            updateZobrist(blockCritical);
-            return blockCritical;
-        }
-
         Move winMove = findWinningMove(myColor);
         if (winMove != null) {
             System.out.println("winMove");
@@ -66,6 +56,16 @@ public class AI extends core.player.AI {
             this.board.makeMove(winMove);
             updateZobrist(winMove);
             return winMove;
+        }
+
+        Move blockCritical = findCriticalBlock(opponent);
+        if (blockCritical != null) {
+            System.out.println("blockCritical");
+            System.out.println(this.board.whoseMove());
+            printMove(blockCritical);
+            this.board.makeMove(blockCritical);
+            updateZobrist(blockCritical);
+            return blockCritical;
         }
 
         Move blockMove = findWinningMove(opponent);

@@ -1,4 +1,4 @@
-package stud.g06;
+package stud.g04;
 
 import core.board.Board;
 import core.board.PieceColor;
@@ -11,7 +11,7 @@ public class AI extends core.player.AI {
     protected static final int[][] DIRECTIONS = {{1,0}, {0,1}, {1,1}, {1,-1}};
     protected PieceColor myColor;
 
-    private static final int MAX_DEPTH = 4;
+    private static final int MAX_DEPTH = 3;
     private static final int INF = 10000000;
     private static final int CANDIDATE_LIMIT = 10;
     private static final int[] SCORES = {0, 10, 100, 1000, 50000, 1000000};
@@ -28,8 +28,16 @@ public class AI extends core.player.AI {
         }
     }
 
+    private void printMove(Move move){
+        System.out.println((move.row0())-65 + "    " + (move.col0()-65));
+        System.out.println((move.row1())-65 + "    " + (move.col1()-65));
+    }
+
     @Override
     public Move findNextMove(Move opponentMove) {
+        System.out.println("opponentMove");
+        System.out.println(this.board.whoseMove());
+        printMove(opponentMove);
         this.board.makeMove(opponentMove);
         updateZobrist(opponentMove);
 
@@ -40,28 +48,41 @@ public class AI extends core.player.AI {
         System.out.println(myColor);
         PieceColor opponent = getOpponent(myColor);
 
-        Move blockCritical = findCriticalBlock(opponent);
-        if (blockCritical != null) {
-            this.board.makeMove(blockCritical);
-            updateZobrist(blockCritical);
-            return blockCritical;
-        }
-
         Move winMove = findWinningMove(myColor);
         if (winMove != null) {
+            System.out.println("winMove");
+            System.out.println(this.board.whoseMove());
+            printMove(winMove);
             this.board.makeMove(winMove);
             updateZobrist(winMove);
             return winMove;
         }
 
+        Move blockCritical = findCriticalBlock(opponent);
+        if (blockCritical != null) {
+            System.out.println("blockCritical");
+            System.out.println(this.board.whoseMove());
+            printMove(blockCritical);
+            this.board.makeMove(blockCritical);
+            updateZobrist(blockCritical);
+            return blockCritical;
+        }
+
         Move blockMove = findWinningMove(opponent);
         if (blockMove != null) {
+            System.out.println("blockMove");
+            System.out.println(this.board.whoseMove());
+            printMove(blockMove);
             this.board.makeMove(blockMove);
             updateZobrist(blockMove);
             return blockMove;
         }
-
+        System.out.println("alphaBetaSearch_pre");
+        System.out.println(this.board.whoseMove());
         Move bestMove = alphaBetaSearch();
+        System.out.println("alphaBetaSearch_last");
+        System.out.println(this.board.whoseMove());
+        printMove(bestMove);
         this.board.makeMove(bestMove);
         updateZobrist(bestMove);
         return bestMove;
@@ -84,7 +105,7 @@ public class AI extends core.player.AI {
 
         for (int i = 0; i < 361; i++) {
             int row = i / 19, col = i % 19;
-            System.out.println(board.get(i) + "   "+ row + "   " + col);
+            //System.out.println(board.get(i) + "   "+ row + "   " + col);
             if (board.get(i) != color) continue;
 
             for (int[] dir : DIRECTIONS) {
@@ -160,7 +181,7 @@ public class AI extends core.player.AI {
         return extensions;
     }
 
-    private Move alphaBetaSearch() {
+    protected Move alphaBetaSearch() {
         List<Move> candidates = generateCandidateMoves();
         if (candidates.isEmpty()) return findSmartMove();
 
@@ -171,7 +192,7 @@ public class AI extends core.player.AI {
             board.makeMove(move);
             updateZobrist(move);
             int score = -negamax(MAX_DEPTH - 1, -INF, -alpha, getOpponent(myColor));
-            board.undo(move);
+            board.undo();
             updateZobrist(move);
 
             if (score > alpha) {
@@ -205,7 +226,7 @@ public class AI extends core.player.AI {
             board.makeMove(move);
             updateZobrist(move);
             int score = -negamax(depth - 1, -beta, -alpha, getOpponent(color));
-            board.undo(move);
+            board.undo();
             updateZobrist(move);
 
             maxScore = Math.max(maxScore, score);
@@ -409,7 +430,7 @@ public class AI extends core.player.AI {
 
     @Override
     public String name() {
-        return "V2-AlphaBeta-Optimized";
+        return "G04";
     }
 
     @Override
