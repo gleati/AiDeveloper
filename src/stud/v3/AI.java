@@ -238,7 +238,7 @@ public class AI extends core.player.AI {
         if (isValid(r - dr * k, c - dc * k) && this.board.get((r - dr * k) * 19 + (c - dc * k)) == PieceColor.EMPTY)
             openEnds++;
 
-        // 评分 (V14 的核心调整)
+        // 评分 (V3 的核心调整)
         if (count >= 6) return SCORE_WIN;
         if (count == 5) return SCORE_MAKE_5;
         if (count == 4) {
@@ -254,7 +254,7 @@ public class AI extends core.player.AI {
         if (count == 2) {
             if (openEnds == 2) return SCORE_LIVE_2;
         }
-        return 1; // 聊胜于无
+        return 1;
     }
 
     // --- 威胁模拟 ---

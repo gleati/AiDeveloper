@@ -172,12 +172,59 @@ public class AI extends core.player.AI {
                 bestMove = mctsSearch();
             }
 
+            // ==================== [可视化日志 - 修正版] ====================
+            // 修正：根据你的反馈，Board存储格式为 board[Col][Row] (即 board[x][y])
+            // index / LENGTH = x (列/Col)
+            // index % LENGTH = y (行/Row)
+
+            int c1 = bestMove.index1() / LENGTH; // Column (X)
+            int r1 = bestMove.index1() % LENGTH; // Row (Y)
+
+            int c2 = bestMove.index2() / LENGTH;
+            int r2 = bestMove.index2() % LENGTH;
+
+            // 这里的参数顺序调整为 (row, col) 传给转换函数
+            String visualP1 = (bestMove.index1() >= 0) ? toVisualCoords(r1, c1) : "PASS";
+            String visualP2 = (bestMove.index2() >= 0) ? toVisualCoords(r2, c2) : "PASS";
+
+            System.err.println(String.format("=== [V4 Turn %d] Decision Log ===", turnCount));
+            System.err.println(String.format("Strategy: %s", (turnCount <= 4 ? "Alpha-Beta" : "MCTS")));
+            // 打印格式: 形象坐标 [Raw: (列x, 行y)]
+            System.err.println(String.format("Move 1  : %-7s [Raw: (%d, %d)]", visualP1, c1, r1));
+            System.err.println(String.format("Move 2  : %-7s [Raw: (%d, %d)]", visualP2, c2, r2));
+            System.err.println("========================================");
+            // ==========================================================
+
             return safeReturn(bestMove);
 
         } catch (Throwable e) {
             e.printStackTrace();
             return safeReturn(getFallbackMove());
         }
+    }
+
+    /**
+     * 将坐标转换为围棋/六子棋标准记法
+     * @param row (Y) 0-18, 其中0是棋盘最上方
+     * @param col (X) 0-18, 其中0是棋盘最左方
+     * @return 格式如 (12, J)
+     */
+    private String toVisualCoords(int row, int col) {
+        // 1. 计算行号: 0 -> 19, 18 -> 1
+        int visualRow = 19 - row;
+
+        // 2. 计算列字母: A-T, 跳过 'I'
+        char visualCol;
+        if (col < 8) {
+            // 0-7 对应 A-H
+            visualCol = (char) ('A' + col);
+        } else {
+            // 8-18 对应 J-T (跳过I, 所以+1)
+            visualCol = (char) ('A' + col + 1);
+        }
+
+        // 返回格式: (12, J)
+        return String.format("(%d, %c)", visualRow, visualCol);
     }
 
     // ==================== MCTS 实现 ====================

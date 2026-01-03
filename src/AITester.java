@@ -97,7 +97,7 @@ public class AITester {
         Configuration.STEP_INTER = 300;
         Player one = new stud.v3.AI();
         Player two = new stud.v4.AI();
-        Match match = new Match(1, one, two);
+        Match match = new Match(1, two, one);
         for (Game game : match.getGames()){
             game.run();
         }
