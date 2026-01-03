@@ -134,49 +134,47 @@ public class AI extends core.player.AI {
 
     @Override
     public Move findNextMove(Move opponentMove) {
+            myColor = (opponentMove == null || opponentMove.index1() == -1)
+                    ? PieceColor.BLACK : PieceColor.WHITE;
+
+            // 初始化 boardState
+            if (boardState == null) {
+                initializeBoard();
+            }
+
+            // 从 this.board 同步已有棋子到 boardState
+            // 黑方时：框架已通过 firstMove() 下了两颗黑棋，需要同步
+            for (int i = 0; i < TOTAL; i++) {
+                PieceColor color = this.board.get(i);
+                if (color != PieceColor.EMPTY) {
+                    int x = i / LENGTH;
+                    int y = i % LENGTH;
+                    int player = (color == myColor) ? SELF : OPP;
+                    if (boardState[x][y] == BLANK) {
+                        updateBoard(x, y, player);
+                    }
+                }
+            }
+
         this.board.draw();
         try {
             startTime = System.currentTimeMillis();
 
             // 同步对手落子
             if (isValidMove(opponentMove)) {
+
                 this.board.makeMove(opponentMove);
+                printMove(opponentMove);
                 updateBoard(opponentMove.index1() / LENGTH, opponentMove.index1() % LENGTH, OPP);
                 if (opponentMove.index2() != -1) {
                     updateBoard(opponentMove.index2() / LENGTH, opponentMove.index2() % LENGTH, OPP);
                 }
             }
 
-            // 确定颜色
-            if (myColor == null) {
-                myColor = (opponentMove == null || opponentMove.index1() == -1)
-                        ? PieceColor.BLACK : PieceColor.WHITE;
-                if (boardState == null) initializeBoard();
-            }
+
 
             turnCount++;
 
-            // 用于修复的代码
-            // 解决“失忆症”：每一回合前，遍历棋盘，确保内部 boardState 与实际 board 完全一致
-            // 这能修复因异常或初始化顺序导致的状态丢失
-            for (int i = 0; i < TOTAL; i++) {
-                int x = i / LENGTH;
-                int y = i % LENGTH;
-                PieceColor p = this.board.get(i); // 获取实际棋盘状态
-
-                // 将实际颜色转换为 AI 内部的 SELF/OPP/BLANK
-                int realState = BLANK;
-                if (p == myColor) {
-                    realState = SELF;
-                } else if (p != PieceColor.EMPTY) {
-                    realState = OPP;
-                }
-
-                // 如果发现记忆偏差（AI以为是空的，实际上有子），强制更新
-                if (boardState[x][y] != realState) {
-                    updateBoard(x, y, realState);
-                }
-            }
 
             // 开局天元
             if (myColor == PieceColor.BLACK && getBoardStoneCount() == 0) {
@@ -193,7 +191,7 @@ public class AI extends core.player.AI {
                 // 后续使用MCTS
                 bestMove = mctsSearch();
             }
-
+            printBoard();
             return safeReturn(bestMove);
 
         } catch (Throwable e) {
@@ -208,6 +206,20 @@ public class AI extends core.player.AI {
      * @param col (X) 0-18, 其中0是棋盘最左方
      * @return 格式如 (12, J)
      */
+
+    private void printMove(Move move) {
+        System.out.println(move.index1()/ LENGTH + " " + move.index1()% LENGTH);
+        System.out.println(move.index2()/ LENGTH + " " + move.index2()% LENGTH);
+    }
+
+    private void printBoard(){
+        for (int i=0; i<LENGTH; i++){
+            for (int j=0; j<LENGTH; j++){
+                System.out.print(boardState[i][j]);
+            }
+            System.out.println();
+        }
+    }
     private String toVisualCoords(int row, int col) {
         // 1. 计算行号: 0 -> 19, 18 -> 1
         int visualRow = 19 - row;

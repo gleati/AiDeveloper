@@ -17,7 +17,7 @@ public class AITester {
         StopwatchCPU timer = new StopwatchCPU();
         testAllVersions();
 //        zeroCarnival();
-        //oneMatch();
+//        oneMatch();
         double elapsedTime = timer.elapsedTime();
         System.out.printf("总耗时: %.4f秒\n", elapsedTime);
     }
@@ -30,12 +30,12 @@ public class AITester {
 //        players.add(new stud.g77.AI());      // V0-走法2：相邻策略
 //        players.add(new stud.g88.AI());      // V0-走法1：完全随机策略
 //        players.add(new stud.g99.AI());      // V0-走法3：中心优先策略
-        //players.add(new stud.v1.AI());
+//        //players.add(new stud.v1.AI());
         players.add(new stud.v3.AI()); // V2-博弈树
         players.add(new stud.v4.AI());    // V3-威胁搜索
 
         GameEvent event = new GameEvent("AI Evolution Test", players);
-        event.carnivalRun(100);
+        event.carnivalRun(6);
         event.showResults();
     }
 
@@ -97,7 +97,7 @@ public class AITester {
         Configuration.STEP_INTER = 300;
         Player one = new stud.v3.AI();
         Player two = new stud.v4.AI();
-        Match match = new Match(1, two, one);
+        Match match = new Match(1, one, two);
         for (Game game : match.getGames()){
             game.run();
         }
