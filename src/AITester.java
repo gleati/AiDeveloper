@@ -15,9 +15,9 @@ import java.util.ArrayList;
 public class AITester {
     public static void main(String[] args) {
         StopwatchCPU timer = new StopwatchCPU();
-//        testAllVersions();
+        testAllVersions();
 //        zeroCarnival();
-        oneMatch();
+        //oneMatch();
         double elapsedTime = timer.elapsedTime();
         System.out.printf("总耗时: %.4f秒\n", elapsedTime);
     }
@@ -35,7 +35,7 @@ public class AITester {
         players.add(new stud.v4.AI());    // V3-威胁搜索
 
         GameEvent event = new GameEvent("AI Evolution Test", players);
-        event.carnivalRun(10);
+        event.carnivalRun(100);
         event.showResults();
     }
 
