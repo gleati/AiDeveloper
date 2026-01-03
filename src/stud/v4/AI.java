@@ -156,6 +156,28 @@ public class AI extends core.player.AI {
 
             turnCount++;
 
+            // 用于修复的代码
+            // 解决“失忆症”：每一回合前，遍历棋盘，确保内部 boardState 与实际 board 完全一致
+            // 这能修复因异常或初始化顺序导致的状态丢失
+            for (int i = 0; i < TOTAL; i++) {
+                int x = i / LENGTH;
+                int y = i % LENGTH;
+                PieceColor p = this.board.get(i); // 获取实际棋盘状态
+
+                // 将实际颜色转换为 AI 内部的 SELF/OPP/BLANK
+                int realState = BLANK;
+                if (p == myColor) {
+                    realState = SELF;
+                } else if (p != PieceColor.EMPTY) {
+                    realState = OPP;
+                }
+
+                // 如果发现记忆偏差（AI以为是空的，实际上有子），强制更新
+                if (boardState[x][y] != realState) {
+                    updateBoard(x, y, realState);
+                }
+            }
+
             // 开局天元
             if (myColor == PieceColor.BLACK && getBoardStoneCount() == 0) {
                 Move start = new Move(LENGTH / 2 * LENGTH + LENGTH / 2, -1);
