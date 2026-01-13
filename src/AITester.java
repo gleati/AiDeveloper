@@ -13,9 +13,12 @@ import java.util.ArrayList;
  * 六子棋AI评测程序
  */
 public class AITester {
+    private static Object oucLeague;
+
     public static void main(String[] args) {
         StopwatchCPU timer = new StopwatchCPU();
         testAllVersions();
+//        oucLeague();
 //        zeroCarnival();
 //        oneMatch();
         double elapsedTime = timer.elapsedTime();

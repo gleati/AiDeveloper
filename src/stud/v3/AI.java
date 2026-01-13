@@ -43,7 +43,7 @@ public class AI extends core.player.AI {
 
     @Override
     public String name() {
-        return "V3-TBS";
+        return "V3";
     }
 
     @Override

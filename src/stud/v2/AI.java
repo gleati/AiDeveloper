@@ -430,7 +430,7 @@ public class AI extends core.player.AI {
 
     @Override
     public String name() {
-        return "V2-AlphaBeta-Optimized";
+        return "V2";
     }
 
     @Override
